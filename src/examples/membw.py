@@ -25,13 +25,23 @@ from plot_utils import *
 ##############################
 
 # # Color palette used for plotting;
-PALETTE_RD = ["#D01C8B", "#F1B6DA"]
-MARKERS_RD = ["o", "X"]
-PALETTE_WR = ["#4DAC26", "#B8E186"]
-MARKERS_WR = ["o", "X"]
+#PALETTE_RD = ["#D01C8B", "#F1B6DA"]
+#["#543005","#8c510a","#bf812d","#dfc27d","#f6e8c3","#c7eae5","#80cdc1","#35978f","#01665e","#003c30"]
+#["#8e0152","#c51b7d","#de77ae","#f1b6da","#fde0ef","#e6f5d0","#b8e186","#7fbc41","#4d9221","#276419"]
+#["#a50026","#d73027","#f46d43","#fdae61","#fee08b","#d9ef8b","#a6d96a","#66bd63","#1a9850","#006837"]
+#["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#e0e0e0","#bababa","#878787","#4d4d4d","#1a1a1a"]
+#["#8e0152","#c51b7d","#de77ae","#f1b6da","#fde0ef","#e6f5d0","#b8e186","#7fbc41","#4d9221","#276419"]
+PALETTE_RD = ["#40004b","#762a83","#9970ab","#c2a5cf","#e7d4e8","#d9f0d3","#a6dba0","#5aae61","#1b7837","#00441b"]
+#MARKERS_RD = ["o", "X"]
+MARKERS_RD = [".","8", "p","*","h","H","P","X","D","d" ]
+#PALETTE_WR = ["#4DAC26", "#B8E186"]
+PALETTE_WR = ["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#e0e0e0","#bababa","#878787","#4d4d4d","#1a1a1a"]
+#MARKERS_WR = ["o", "X"]
+#MARKERS_WR = ["o","|","1","2","v","^","+","x","3","4"]
+MARKERS_WR = ["_","|","1","2",0,3,"+","x","3","4"]
 
 # # Axes limits used in the plot, change them accordingy to your data;
-X_LIMITS = (2,22)
+X_LIMITS = (2,33)
 Y_LIMITS = (0, 85)
 
 ##############################
@@ -93,9 +103,9 @@ def performance_scaling(data: pd.DataFrame,
     kind_increase = {}      
     
     # Add a scatterplot for individual elements of the dataset, and change color based on hardware type;
-    ax = sns.scatterplot(x="bytes_power", y="AVG_RD_BW[Gbit/s]", hue="version", style="version", palette=PALETTE_RD, markers=MARKERS_RD, s=15,
+    ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_RD_BW[Gbit/s]", hue="Brst_size[#beats]", style="Brst_size[#beats]", palette=PALETTE_RD, markers=MARKERS_RD, s=15,
                       data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=3)
-    ax = sns.scatterplot(x="bytes_power", y="AVG_WR_BW[Gbit/s]", hue="version", style="version", palette=PALETTE_WR, markers=MARKERS_WR, s=15,
+    ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_WR_BW[Gbit/s]", hue="Brst_size[#beats]", style="Brst_size[#beats]", palette=PALETTE_WR, markers=MARKERS_WR, s=15,
                       data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=4)
     # Add a scatterplot for individual elements of the dataset, and change color based on hardware type;
     #ax = sns.scatterplot(x="bytes_power", y="AVG_WR_BW[Gbit/s]", hue="version", style="version", palette=PALETTE, markers=MARKERS, s=15,
@@ -184,7 +194,7 @@ def performance_scaling(data: pd.DataFrame,
             return str(int(l))
         else:
             return f"{l:.1f}"
-    ax.set_yticklabels(labels=[format_speedup(l) + r"$\mathdefault{\times}$" for l in ax.get_yticks()], ha="right", fontsize=7)
+    #ax.set_yticklabels(labels=[format_speedup(l) + r"$\mathdefault{\times}$" for l in ax.get_yticks()], ha="right", fontsize=7)
  
     # Add a fake legend with summary data.
     # We don't use a real legend as we need rows with different colors and we don't want patches on the left.
@@ -209,8 +219,8 @@ def performance_scaling(data: pd.DataFrame,
         #            xy=(0.43, 0.941 - 0.05 * i), xycoords="axes fraction", fontsize=7, color=kind_to_col[k], ha="right", va="top")
         
     # Add axes labels;
-    plt.ylabel("Performance Scaling", fontsize=8)
-    plt.xlabel(None)
+    plt.ylabel("Performance Scaling [Gbit/s]", fontsize=8)
+    plt.xlabel("Byte Size (2^x)", fontsize=8)
     
     return fig, ax
 
@@ -220,7 +230,7 @@ def performance_scaling(data: pd.DataFrame,
 if __name__ == "__main__":
     
     # Load data;
-    data = pd.read_csv("../../data/cfp_vitis_memtest_avg.csv")   
+    data = pd.read_csv("../../data/memtest_plot_complex.csv")   
     # Convert date;
     #data["year"] = pd.to_datetime(data["year"], format='%Y-%m')
 
@@ -228,6 +238,6 @@ if __name__ == "__main__":
     fig, ax = performance_scaling(data)   
     
     # Save the plot;
-    save_plot("../../plots", "membw_performance_scaling.{}")  
+    save_plot("../../plots", "membw_performance_scaling_new.{}")  
     
 
