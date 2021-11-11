@@ -16,6 +16,7 @@ from matplotlib.dates import YearLocator, MonthLocator, num2date
 from datetime import datetime
 from matplotlib.ticker import FuncFormatter
 from sklearn import linear_model
+import matplotlib.ticker as ticker
 
 import sys
 sys.path.append("..")
@@ -25,24 +26,26 @@ from plot_utils import *
 ##############################
 
 # # Color palette used for plotting;
-#PALETTE_RD = ["#D01C8B", "#F1B6DA"]
+PALETTE_RD_CMP = ["#D01C8B", "#F1B6DA"]
+MARKERS_RD_CMP = ["o", "X"]
+MARKERS_WR_CMP = ["o", "X"]
+PALETTE_WR_CMP = ["#4DAC26", "#B8E186"]
 #["#543005","#8c510a","#bf812d","#dfc27d","#f6e8c3","#c7eae5","#80cdc1","#35978f","#01665e","#003c30"]
 #["#8e0152","#c51b7d","#de77ae","#f1b6da","#fde0ef","#e6f5d0","#b8e186","#7fbc41","#4d9221","#276419"]
 #["#a50026","#d73027","#f46d43","#fdae61","#fee08b","#d9ef8b","#a6d96a","#66bd63","#1a9850","#006837"]
 #["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#e0e0e0","#bababa","#878787","#4d4d4d","#1a1a1a"]
 #["#8e0152","#c51b7d","#de77ae","#f1b6da","#fde0ef","#e6f5d0","#b8e186","#7fbc41","#4d9221","#276419"]
 PALETTE_RD = ["#40004b","#762a83","#9970ab","#c2a5cf","#e7d4e8","#d9f0d3","#a6dba0","#5aae61","#1b7837","#00441b"]
-#MARKERS_RD = ["o", "X"]
 MARKERS_RD = [".","8", "p","*","h","H","P","X","D","d" ]
-#PALETTE_WR = ["#4DAC26", "#B8E186"]
 PALETTE_WR = ["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#e0e0e0","#bababa","#878787","#4d4d4d","#1a1a1a"]
-#MARKERS_WR = ["o", "X"]
 #MARKERS_WR = ["o","|","1","2","v","^","+","x","3","4"]
-MARKERS_WR = ["_","|","1","2",0,3,"+","x","3","4"]
+MARKERS_WR = [".","8", "p","*","h","H","P","X","D","d" ]
+#MARKERS_WR = ["_","|","1","x","4",0,3,"3","+","2"]
 
 # # Axes limits used in the plot, change them accordingy to your data;
-X_LIMITS = (2,33)
+X_LIMITS = (2,34)
 Y_LIMITS = (0, 85)
+X_LIMITS_SINGLE = (0,34)
 
 ##############################
 ##############################
@@ -66,7 +69,6 @@ def performance_scaling(data: pd.DataFrame,
     fig : matplotlib figure containing the plot
     ax : matplotlib axis containing the plot
     """
-    
     ##############
     # Plot setup #
     ##############
@@ -103,13 +105,10 @@ def performance_scaling(data: pd.DataFrame,
     kind_increase = {}      
     
     # Add a scatterplot for individual elements of the dataset, and change color based on hardware type;
-    ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_RD_BW[Gbit/s]", hue="Brst_size[#beats]", style="Brst_size[#beats]", palette=PALETTE_RD, markers=MARKERS_RD, s=15,
+    ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_RD_BW[Gbit/s]", hue="TestVersion", style="TestVersion", palette=PALETTE_RD_CMP, markers=MARKERS_RD_CMP, s=15,
                       data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=3)
-    ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_WR_BW[Gbit/s]", hue="Brst_size[#beats]", style="Brst_size[#beats]", palette=PALETTE_WR, markers=MARKERS_WR, s=15,
-                      data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=4)
-    # Add a scatterplot for individual elements of the dataset, and change color based on hardware type;
-    #ax = sns.scatterplot(x="bytes_power", y="AVG_WR_BW[Gbit/s]", hue="version", style="version", palette=PALETTE, markers=MARKERS, s=15,
-    #                  data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=4)
+    ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_WR_BW[Gbit/s]", hue="TestVersion", style="TestVersion", palette=PALETTE_WR_CMP, markers=MARKERS_WR_CMP, s=15,
+                      data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=2)
 
     # Add a regression plot to highlight the correlation between variables, with 95% confidence intervals;
     # if plot_regression:
@@ -139,7 +138,7 @@ def performance_scaling(data: pd.DataFrame,
     # def get_color(c):  # Make the color darker, to use it for text;
     #     hue, saturation, brightness = colors.rgb_to_hsv(colors.to_rgb(c))
     #     return sns.set_hls_values(c, l=brightness * 0.6, s=saturation * 0.7)
-    # kind_to_col = {k: get_color(PALETTE_RD[i]) for i, k in enumerate(data["version"].unique())}
+    #kind_to_col = {k: get_color(PALETTE_RD[i]) for i, k in enumerate(data["Brst_size[#beats]"].unique())}
     
     #data["name"] = data["name"].fillna("")
     #for i, row in data.iterrows():
@@ -179,10 +178,11 @@ def performance_scaling(data: pd.DataFrame,
             return ""
         else:
             return d.year
-    #ax.xaxis.set_major_locator(YearLocator())
+    tick_spacing = 2
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
     #ax.xaxis.set_minor_locator(MonthLocator(interval=3))
     #ax.xaxis.set_major_formatter(FuncFormatter(year_formatter))
-    #ax.yaxis.set_major_locator(plt.LogLocator(base=10, numticks=15))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
     ax.tick_params(axis="x", direction="out", which="both", bottom=True, top=False, labelsize=7, width=0.5, size=5)
     ax.tick_params(axis="x", direction="out", which="minor", size=2)  # Update size of minor ticks;
     ax.tick_params(axis="y", direction="out", which="both", left=True, right=False, labelsize=7, width=0.5, size=5)
@@ -223,6 +223,209 @@ def performance_scaling(data: pd.DataFrame,
     plt.xlabel("Byte Size (2^x)", fontsize=8)
     
     return fig, ax
+##############################
+##############################
+
+def mem_bw_read(data: pd.DataFrame,
+                        set_axes_limits: bool=True,
+                        plot_regression: bool=True) -> (plt.Figure, plt.Axes):
+    """
+    Parameters
+    ----------
+    data : pd.DataFrame with 6 columns:
+        "year",
+        "performance",
+        "kind" ∈ ["compute", "memory", "interconnect"],
+        "name" (label shown in the plot, it can be empty),
+        "base" (base value used for speedup, it can be empty),
+        "comment" (e.g. data source or non-used label, it can be empty).
+
+    Returns
+    -------
+    fig : matplotlib figure containing the plot
+    ax : matplotlib axis containing the plot
+    """
+    data.rename(columns={'Brst_size[#beats]': 'Burst Size'}, inplace=True)
+    
+    ##############
+    # Plot setup #
+    ##############
+    
+    # Reset matplotlib settings;
+    plt.rcdefaults()
+    # Setup general plotting settings;
+    sns.set_style("white", {"ytick.left": True, "xtick.bottom": True})
+    plt.rcParams["font.family"] = ["Latin Modern Roman Demi"]
+    plt.rcParams['axes.labelpad'] = 0  # Padding between axis and axis label;
+    plt.rcParams['xtick.major.pad'] = 1  # Padding between axis ticks and tick labels;
+    plt.rcParams['ytick.major.pad'] = 1  # Padding between axis ticks and tick labels;
+    plt.rcParams['axes.linewidth'] = 0.8  # Line width of the axis borders;
+    
+    # Create a figure for the plot, and adjust margins;
+    fig = plt.figure(figsize=(6, 3))
+    gs = gridspec.GridSpec(1, 1)
+    plt.subplots_adjust(top=0.98,
+                        bottom=0.1,
+                        left=0.12,
+                        right=0.99)  
+    ax = fig.add_subplot(gs[0, 0])
+    
+    # Set axes limits;        
+    if set_axes_limits:
+        ax.set_xlim(X_LIMITS_SINGLE)
+        ax.set_ylim(Y_LIMITS)
+    
+    #################
+    # Main plot #####
+    #################    
+
+    # Measure performance increase over 20 and 2 years;
+    kind_increase = {}      
+    
+    # Add a scatterplot for individual elements of the dataset, and change color based on hardware type;
+    ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_RD_BW[Gbit/s]", hue="Burst Size", style="Burst Size", palette=PALETTE_RD, markers=MARKERS_RD, s=15,
+                      data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=3)
+    
+    #####################
+    # Style fine-tuning #
+    #####################
+    
+    # Log-scale y-axis;
+    #plt.yscale("log")
+    
+    # Turn on the grid;
+    ax.yaxis.grid(True, linewidth=0.3)
+    ax.xaxis.grid(True, linewidth=0.3)
+    
+    # Set tick number and parameters on x and y axes;
+    def year_formatter(x, pos=None):
+        d = num2date(x)
+        if (d.year - X_LIMITS[0].year) % 3 != 0:
+            return ""
+        else:
+            return d.year
+    ax.tick_params(axis="x", direction="out", which="both", bottom=True, top=False, labelsize=7, width=0.5, size=5)
+    ax.tick_params(axis="x", direction="out", which="minor", size=2)  # Update size of minor ticks;
+    ax.tick_params(axis="y", direction="out", which="both", left=True, right=False, labelsize=7, width=0.5, size=5)
+    ax.tick_params(axis="y", direction="out", which="minor", size=2)  # Update size of minor ticks;
+    
+    # Ticks, showing relative performance;
+    def format_speedup(l):
+        if l >= 1:
+            return str(int(l))
+        else:
+            return f"{l:.1f}"
+    #ax.set_yticklabels(labels=[format_speedup(l) + r"$\mathdefault{\times}$" for l in ax.get_yticks()], ha="right", fontsize=7)
+ 
+    # Add a fake legend with summary data.
+    # We don't use a real legend as we need rows with different colors and we don't want patches on the left.
+    # Also, we want the text to look justified.
+    def get_kind_label(k):
+        kind_name = ""
+        if k == "compute":
+            kind_name = "HW FLOPS"
+        elif k == "memory":
+            kind_name = "DRAM BW"
+        else:
+            kind_name = "Interconnect BW"
+        return kind_name
+
+    # Add axes labels;
+    plt.ylabel("Read Bandwidth Scaling [Gbit/s]", fontsize=8)
+    plt.xlabel("Byte Size (2^x)", fontsize=8)
+    
+    return fig, ax
+
+##############################
+##############################
+def mem_bw_write(data: pd.DataFrame,
+                        set_axes_limits: bool=True,
+                        plot_regression: bool=True) -> (plt.Figure, plt.Axes):
+    """
+    Parameters
+    ----------
+    data : pd.DataFrame with 6 columns:
+        "year",
+        "performance",
+        "kind" ∈ ["compute", "memory", "interconnect"],
+        "name" (label shown in the plot, it can be empty),
+        "base" (base value used for speedup, it can be empty),
+        "comment" (e.g. data source or non-used label, it can be empty).
+
+    Returns
+    -------
+    fig : matplotlib figure containing the plot
+    ax : matplotlib axis containing the plot
+    """
+    #done in the read
+    #data.rename(columns={'Brst_size[#beats]': 'Burst Size'}, inplace=True)
+    
+    ##############
+    # Plot setup #
+    ##############
+    
+    # Reset matplotlib settings;
+    plt.rcdefaults()
+    # Setup general plotting settings;
+    sns.set_style("white", {"ytick.left": True, "xtick.bottom": True})
+    plt.rcParams["font.family"] = ["Latin Modern Roman Demi"]
+    plt.rcParams['axes.labelpad'] = 0  # Padding between axis and axis label;
+    plt.rcParams['xtick.major.pad'] = 1  # Padding between axis ticks and tick labels;
+    plt.rcParams['ytick.major.pad'] = 1  # Padding between axis ticks and tick labels;
+    plt.rcParams['axes.linewidth'] = 0.8  # Line width of the axis borders;
+    
+    # Create a figure for the plot, and adjust margins;
+    fig = plt.figure(figsize=(6, 3))
+    gs = gridspec.GridSpec(1, 1)
+    plt.subplots_adjust(top=0.98,
+                        bottom=0.1,
+                        left=0.12,
+                        right=0.99)  
+    ax = fig.add_subplot(gs[0, 0])
+    
+    # Set axes limits;        
+    if set_axes_limits:
+        ax.set_xlim(X_LIMITS_SINGLE)
+        ax.set_ylim(Y_LIMITS)
+    
+    #################
+    # Main plot #####
+    #################    
+    
+    
+    # Add a scatterplot for individual elements of the dataset, and change color based on hardware type;
+    ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_WR_BW[Gbit/s]", hue="Burst Size", style="Burst Size", palette=PALETTE_WR, markers=MARKERS_WR, s=15,
+                      data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=4)
+    
+    #####################
+    # Style fine-tuning #
+    #####################
+   
+    # Turn on the grid;
+    ax.yaxis.grid(True, linewidth=0.3)
+    ax.xaxis.grid(True, linewidth=0.3)
+    ax.tick_params(axis="x", direction="out", which="both", bottom=True, top=False, labelsize=7, width=0.5, size=5)
+    ax.tick_params(axis="x", direction="out", which="minor", size=2)  # Update size of minor ticks;
+    ax.tick_params(axis="y", direction="out", which="both", left=True, right=False, labelsize=7, width=0.5, size=5)
+    ax.tick_params(axis="y", direction="out", which="minor", size=2)  # Update size of minor ticks;
+    
+    # Ticks, showing relative performance;
+    def format_speedup(l):
+        if l >= 1:
+            return str(int(l))
+        else:
+            return f"{l:.1f}"
+    #ax.set_yticklabels(labels=[format_speedup(l) + r"$\mathdefault{\times}$" for l in ax.get_yticks()], ha="right", fontsize=7)
+ 
+    # Add a fake legend with summary data.
+    # We don't use a real legend as we need rows with different colors and we don't want patches on the left.
+    # Also, we want the text to look justified.
+
+    # Add axes labels;
+    plt.ylabel("Write Bandwidth Scaling [Gbit/s]", fontsize=8)
+    plt.xlabel("Byte Size (2^x)", fontsize=8)
+    
+    return fig, ax
 
 ##############################
 ##############################
@@ -230,7 +433,7 @@ def performance_scaling(data: pd.DataFrame,
 if __name__ == "__main__":
     
     # Load data;
-    data = pd.read_csv("../../data/memtest_plot_complex.csv")   
+    data = pd.read_csv("../../data/memtest_smpl_vs_cmplx.csv")   
     # Convert date;
     #data["year"] = pd.to_datetime(data["year"], format='%Y-%m')
 
@@ -240,4 +443,16 @@ if __name__ == "__main__":
     # Save the plot;
     save_plot("../../plots", "membw_performance_scaling_new.{}")  
     
+    data = pd.read_csv("../../data/memtest_plot_complex.csv")   
+    
+    # Create the plot;
+    fig, ax = mem_bw_read(data)   
+    
+    # Save the plot;
+    save_plot("../../plots", "membw_read.{}")  
 
+    # Create the plot;
+    fig, ax = mem_bw_write(data)   
+    
+    # Save the plot;
+    save_plot("../../plots", "membw_write.{}")  
