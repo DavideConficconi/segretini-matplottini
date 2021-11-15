@@ -35,18 +35,24 @@ PALETTE_WR_CMP = ["#4DAC26", "#B8E186"]
 #["#a50026","#d73027","#f46d43","#fdae61","#fee08b","#d9ef8b","#a6d96a","#66bd63","#1a9850","#006837"]
 #["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#e0e0e0","#bababa","#878787","#4d4d4d","#1a1a1a"]
 #["#8e0152","#c51b7d","#de77ae","#f1b6da","#fde0ef","#e6f5d0","#b8e186","#7fbc41","#4d9221","#276419"]
-PALETTE_RD = ["#40004b","#762a83","#9970ab","#c2a5cf","#e7d4e8","#d9f0d3","#a6dba0","#5aae61","#1b7837","#00441b"]
-MARKERS_RD = [".","8", "p","*","h","H","P","X","D","d" ]
-PALETTE_WR = ["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#e0e0e0","#bababa","#878787","#4d4d4d","#1a1a1a"]
+#["#40004b","#762a83","#9970ab","#c2a5cf","#e7d4e8","#d9f0d3","#a6dba0","#5aae61","#1b7837","#00441b"]
+PALETTE_RD = ["#40004b","#762a83","#9970ab","#c2a5cf","#e7d4e8","#f7f7f7","#d9f0d3","#a6dba0","#5aae61","#1b7837","#00441b","#40004b","#762a83"]
+#PALETTE_RD = sns.color_palette("colorblind",13)
+MARKERS_RD = [".","8", "p","*","h","H","P","X","D","d","<","v","s" ]
+# ["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#e0e0e0","#bababa","#878787","#4d4d4d","#1a1a1a"]
+PALETTE_WR = ["#40004b","#762a83","#9970ab","#c2a5cf","#e7d4e8","#f7f7f7","#d9f0d3","#a6dba0","#5aae61","#1b7837","#00441b","#40004b","#762a83"]
 #MARKERS_WR = ["o","|","1","2","v","^","+","x","3","4"]
-MARKERS_WR = [".","8", "p","*","h","H","P","X","D","d" ]
+#MARKERS_WR = [".","8", "p","*","h","H","P","X","D","d" ]
+MARKERS_WR = [".","8", "p","*","h","H","P","X","D","d","<","v","s" ]
 #MARKERS_WR = ["_","|","1","x","4",0,3,"3","+","2"]
 
 # # Axes limits used in the plot, change them accordingy to your data;
 X_LIMITS = (2,34)
 Y_LIMITS = (0, 85)
 X_LIMITS_SINGLE = (0,34)
-
+legend_fontsize=6
+ax_fontsize=8
+markerscale=0.8
 ##############################
 ##############################
 
@@ -108,7 +114,7 @@ def performance_scaling(data: pd.DataFrame,
     ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_RD_BW[Gbit/s]", hue="TestVersion", style="TestVersion", palette=PALETTE_RD_CMP, markers=MARKERS_RD_CMP, s=15,
                       data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=3)
     ax = sns.scatterplot(x="PowOfTwoBytes", y="AVG_WR_BW[Gbit/s]", hue="TestVersion", style="TestVersion", palette=PALETTE_WR_CMP, markers=MARKERS_WR_CMP, s=15,
-                      data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=2)
+                      data=data, ax=ax, edgecolor="#2f2f2f", linewidth=0.5, zorder=10)
 
     # Add a regression plot to highlight the correlation between variables, with 95% confidence intervals;
     # if plot_regression:
@@ -219,8 +225,9 @@ def performance_scaling(data: pd.DataFrame,
         #            xy=(0.43, 0.941 - 0.05 * i), xycoords="axes fraction", fontsize=7, color=kind_to_col[k], ha="right", va="top")
         
     # Add axes labels;
-    plt.ylabel("Performance Scaling [Gbit/s]", fontsize=8)
-    plt.xlabel("Byte Size (2^x)", fontsize=8)
+    plt.ylabel("Performance Scaling [Gbit/s]", fontsize=ax_fontsize)
+    plt.xlabel("Byte Size (2^x)", fontsize=ax_fontsize)
+    plt.legend(title="Version",title_fontsize=legend_fontsize+1,loc="lower right", frameon=True, fontsize=legend_fontsize, markerscale=markerscale)
     
     return fig, ax
 ##############################
@@ -308,32 +315,12 @@ def mem_bw_read(data: pd.DataFrame,
     ax.tick_params(axis="x", direction="out", which="minor", size=2)  # Update size of minor ticks;
     ax.tick_params(axis="y", direction="out", which="both", left=True, right=False, labelsize=7, width=0.5, size=5)
     ax.tick_params(axis="y", direction="out", which="minor", size=2)  # Update size of minor ticks;
-    
-    # Ticks, showing relative performance;
-    def format_speedup(l):
-        if l >= 1:
-            return str(int(l))
-        else:
-            return f"{l:.1f}"
-    #ax.set_yticklabels(labels=[format_speedup(l) + r"$\mathdefault{\times}$" for l in ax.get_yticks()], ha="right", fontsize=7)
- 
-    # Add a fake legend with summary data.
-    # We don't use a real legend as we need rows with different colors and we don't want patches on the left.
-    # Also, we want the text to look justified.
-    def get_kind_label(k):
-        kind_name = ""
-        if k == "compute":
-            kind_name = "HW FLOPS"
-        elif k == "memory":
-            kind_name = "DRAM BW"
-        else:
-            kind_name = "Interconnect BW"
-        return kind_name
+
+    plt.legend(title="Burst size",title_fontsize=legend_fontsize+1,loc="upper left", frameon=True, fontsize=legend_fontsize, markerscale=markerscale)
 
     # Add axes labels;
-    plt.ylabel("Read Bandwidth Scaling [Gbit/s]", fontsize=8)
-    plt.xlabel("Byte Size (2^x)", fontsize=8)
-    
+    plt.ylabel("Read Bandwidth Scaling [Gbit/s]", fontsize=ax_fontsize)
+    plt.xlabel("Byte Size (2^x)", fontsize=ax_fontsize)
     return fig, ax
 
 ##############################
@@ -409,21 +396,11 @@ def mem_bw_write(data: pd.DataFrame,
     ax.tick_params(axis="y", direction="out", which="both", left=True, right=False, labelsize=7, width=0.5, size=5)
     ax.tick_params(axis="y", direction="out", which="minor", size=2)  # Update size of minor ticks;
     
-    # Ticks, showing relative performance;
-    def format_speedup(l):
-        if l >= 1:
-            return str(int(l))
-        else:
-            return f"{l:.1f}"
-    #ax.set_yticklabels(labels=[format_speedup(l) + r"$\mathdefault{\times}$" for l in ax.get_yticks()], ha="right", fontsize=7)
- 
-    # Add a fake legend with summary data.
-    # We don't use a real legend as we need rows with different colors and we don't want patches on the left.
-    # Also, we want the text to look justified.
+    plt.legend(title="Burst size", title_fontsize=legend_fontsize+1, loc="upper left", frameon=True, fontsize=legend_fontsize, markerscale=markerscale)
 
     # Add axes labels;
-    plt.ylabel("Write Bandwidth Scaling [Gbit/s]", fontsize=8)
-    plt.xlabel("Byte Size (2^x)", fontsize=8)
+    plt.ylabel("Write Bandwidth Scaling [Gbit/s]", fontsize=ax_fontsize)
+    plt.xlabel("Byte Size (2^x)", fontsize=ax_fontsize)
     
     return fig, ax
 
